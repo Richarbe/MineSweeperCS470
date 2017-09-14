@@ -26,11 +26,12 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     let gapBetweenTiles = 2.0
     var mineModel = MineSweeperModel()
     var widthOfATile = 0.0
+    let shadowColor = UIColor.lightGray.cgColor
     
     func makeButton(x: Double, y: Double, widthHeight: Double) -> UIButton {
         let button = UIButton(type: .roundedRect)
         button.frame = CGRect(x: x, y: y, width: widthHeight, height: widthHeight)
-        button.backgroundColor = UIColor.orange
+        button.backgroundColor = UIColor.purple
         button.layer.cornerRadius = 5.0
         button.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
         //addTarget does same thing as ctrl drag from storyboard to controller.
@@ -84,7 +85,7 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
                 if column.tiles[0] == TileType.MineTile {
                     let mineView = MineView(frame: CGRect(x: x, y: y, width: widthOfATile, height: widthOfATile))
                     mineView.backgroundColor = UIColor.white
-                    mineView.layer.shadowColor = UIColor.black.cgColor
+                    mineView.layer.shadowColor = shadowColor
                     mineView.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
                     mineView.layer.shadowRadius = 5
                     mineView.layer.shadowOpacity = 1.0
@@ -93,7 +94,7 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
                     view.addSubview(mineView)
                 } else {
                     let button = makeButton(x: x, y: y, widthHeight: widthOfATile)
-                    button.layer.shadowColor = UIColor.black.cgColor
+                    button.layer.shadowColor = shadowColor
                     button.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
                     button.layer.shadowRadius = 5
                     button.layer.shadowOpacity = 1.0
