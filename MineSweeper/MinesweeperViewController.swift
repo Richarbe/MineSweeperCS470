@@ -28,12 +28,33 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     var widthOfATile = 0.0
     let shadowColor = UIColor.lightGray.cgColor
     
-    func makeButton(x: Double, y: Double, widthHeight: Double) -> UIButton {
-        let button = UIButton(type: .roundedRect)
+    class gridUIButton : UIButton {
+        var gridcolumn = 0
+        var gridrow = 0
+    }
+    
+    func makeButton(x: Double, y: Double, widthHeight: Double, gridrow: Int, gridcolumn: Int) -> gridUIButton {
+        let button = gridUIButton(type: .roundedRect)
         button.frame = CGRect(x: x, y: y, width: widthHeight, height: widthHeight)
-        button.backgroundColor = UIColor.purple
-        button.layer.cornerRadius = 5.0
+        button.backgroundColor = UIColor.white
+        //button.layer.cornerRadius = 0
         button.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
+        button.gridrow = gridrow
+        button.gridcolumn = gridcolumn
+        //addTarget does same thing as ctrl drag from storyboard to controller.
+        return button
+    }
+    
+    func makeCoverTile(x: Double, y: Double, widthHeight: Double, gridrow: Int, gridcolumn: Int) -> gridUIButton {
+        let button = gridUIButton(type: .roundedRect)
+        button.frame = CGRect(x: x, y: y, width: widthHeight, height: widthHeight)
+        button.backgroundColor = UIColor.white
+        button.layer.borderColor = UIColor.darkGray.cgColor
+        button.layer.borderWidth = 1.0
+        //button.layer.cornerRadius = 0
+        button.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
+        button.gridrow = gridrow
+        button.gridcolumn = gridcolumn
         //addTarget does same thing as ctrl drag from storyboard to controller.
         return button
     }
@@ -71,18 +92,29 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
 
     
     func updateTiles(tiles: [[TileAttributes]]) {
+        for view in self.view.subviews {//clears all subviews
+            view.removeFromSuperview()
+        }
         let frame = view.frame
         print(frame)
         widthOfATile = (Double(frame.size.width) - (1 + Double(numberOfColumns)) * gapBetweenTiles) / (Double(numberOfColumns) /*+ gapBetweenTiles*/)
         print("width of a tile \(widthOfATile)")
         var v = 0
-        for row in tiles {
-            let y = (widthOfATile + gapBetweenTiles) * Double(row[0].row) + 40.0
+        for i in 0..<tiles.count {
+            let y = (widthOfATile + gapBetweenTiles) * Double(tiles[i][0].row) + 40.0
 
-            for column in row {
+            for j in 0..<tiles[i].count {
                 v += 1
-                let x = (widthOfATile + gapBetweenTiles) * Double(column.column) + gapBetweenTiles
-                if column.tiles[0] == TileType.MineTile {
+                let x = (widthOfATile + gapBetweenTiles) * Double(tiles[i][j].column) + gapBetweenTiles
+                if tiles[i][j].tiles[1] == TileType.CoverTile {
+                    let button = makeButton(x: x-gapBetweenTiles/2, y: y-gapBetweenTiles/2, widthHeight: widthOfATile + gapBetweenTiles, gridrow: i, gridcolumn: j)
+                    button.layer.shadowColor = shadowColor
+                    button.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
+                    button.layer.shadowRadius = 5
+                    button.layer.shadowOpacity = 1.0
+                    view.addSubview(button)
+
+                }else if tiles[i][j].tiles[0] == TileType.MineTile {
                     let mineView = MineView(frame: CGRect(x: x, y: y, width: widthOfATile, height: widthOfATile))
                     mineView.backgroundColor = UIColor.white
                     mineView.layer.shadowColor = shadowColor
@@ -93,14 +125,24 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
 
                     view.addSubview(mineView)
                 } else {
-                    let button = makeButton(x: x, y: y, widthHeight: widthOfATile)
+                    let button = makeButton(x: x, y: y, widthHeight: widthOfATile, gridrow: i, gridcolumn: j)
                     button.layer.shadowColor = shadowColor
                     button.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
                     button.layer.shadowRadius = 5
                     button.layer.shadowOpacity = 1.0
-
-
-                    button.setTitle("\(v % 10)", for: .normal)
+                    var count = 0
+                    for iofset in -1...1 {
+                        for jofset in -1...1 {
+                            if 0..<tiles.count ~= i + iofset,
+                               0..<tiles[i].count ~= j + jofset,
+                               tiles[i+iofset][j+jofset].tiles[0] == TileType.MineTile{
+                                count += 1
+                            }
+                        }
+                    }
+                    if count > 0 {
+                    button.setTitle("\(count)", for: .normal)
+                    }
                     view.addSubview(button)
                 }
             }
@@ -115,8 +157,12 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    func didTapButton(_ button: UIButton) {
-        print("didTapButton with tag: \(button.tag)")
+    func didTapButton(_ button: gridUIButton) {
+        print("didTapButton with grid position: \(button.gridrow) \(button.gridcolumn)")
+        if mineModel.prodForMines(row: button.gridrow, column: button.gridcolumn){
+            print("you lost")
+        }
+        updateTiles(tiles: mineModel.actionTiles())
     }
     
     override func didReceiveMemoryWarning() {
@@ -175,7 +221,19 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
         numColumnsTextField.isEnabled = false
         return true
     }
-
-
-}
+    /*
+    func countNeighborMines(row: Int, column: Int) -> Int {
+        var count = 0
+        var rowrange = -1...1
+        var colrange = -1...1
+        for i in -1...1 {
+            for j in -1...1 {
+                var newrow = row + i
+                var newcol = column + j
+                    
+                }
+            }
+        return count
+        }*/
+    }
 

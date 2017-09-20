@@ -13,6 +13,7 @@ enum TileType {
     case FlagTile
     case CoverTile
     case MineTile
+    case NoTile
 }
 
 struct TileAttributes {
@@ -31,12 +32,12 @@ class MineSweeperModel: NSObject {
     
     private var tiles = [[TileAttributes]]()
     
-    func startGameWith(rows: Int, columns: Int) -> [[TileAttributes]]{
+    func startGameWith(rows: Int, columns: Int) -> ([[TileAttributes]]){
         self.rows = rows
         self.columns = columns
         
         for row in 0..<rows {
-            var tileRow = [TileAttributes]() // Create a one-dimensional array
+            var tileRow = [TileAttributes]()// Create a one-dimensional array
             for column in 0..<columns {
                 tileRow.append(createTile(row: row, column: column)) // Create either a NumberTile or a MineTile.
                 tileRow[column].tiles.append(.CoverTile)             // Cover it with a CoverTile.
@@ -52,7 +53,7 @@ class MineSweeperModel: NSObject {
             }
         }
          */
-        return tiles
+        return (tiles)
     }
     
     func createTile(row: Int, column: Int) -> TileAttributes {
@@ -68,5 +69,40 @@ class MineSweeperModel: NSObject {
     func actionTiles() -> [[TileAttributes]] {
         return tiles 
     }
-
+    
+    func prodForMines(row: Int, column: Int) -> Bool {
+        //return true if mine explodes
+        tiles[row][column].tiles[1] = TileType.NoTile
+        if tiles[row][column].tiles[0] == TileType.MineTile{
+            return true
+        }else{
+            clearSpace(row: row, column: column)
+            return false
+        }
+    }
+    
+    func clearSpace(row: Int, column: Int) {
+        tiles[row][column].tiles[1] = TileType.NoTile
+        var isSafe = true
+        for i in -1...1 {
+            for j in -1...1 {
+                if 0..<tiles.count ~= row+i,
+                    0..<tiles[row].count ~= column+j,
+                    tiles[row+i][column+j].tiles[0] == TileType.MineTile{
+                    isSafe = false
+                }
+            }
+        }
+        if isSafe{
+            for i in -1...1 {
+                for j in -1...1 {
+                    if 0..<tiles.count ~= row+i,
+                        0..<tiles[row].count ~= column+j,
+                        tiles[row+i][column+j].tiles[1] == TileType.CoverTile{
+                        clearSpace(row: i+row, column: j+column)
+                    }
+                }
+            }
+        }
+    }
 }
