@@ -17,6 +17,10 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var numRowsTextField: UITextField!
     @IBOutlet weak var numColumnsTextField: UITextField!
 
+    @IBOutlet weak var flagButton: UIButton!
+    @IBOutlet weak var restartButton: UIButton!
+    @IBOutlet weak var numMinesMessageLabel: UILabel!
+    
     var numberOfRows = 0
     var numberOfColumns = 0
     let maxNumberOfRows = 15
@@ -27,6 +31,9 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     var mineModel = MineSweeperModel()
     var widthOfATile = 0.0
     let shadowColor = UIColor.lightGray.cgColor
+    let flagImage = UIImage(named: "flag.png")
+    let unflagImage = UIImage(named: "unflag.png")
+    var FlagPlaceMode = false
     
     class gridUIButton : UIButton {
         var gridcolumn = 0
@@ -36,7 +43,7 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     func makeButton(x: Double, y: Double, widthHeight: Double, gridrow: Int, gridcolumn: Int) -> gridUIButton {
         let button = gridUIButton(type: .roundedRect)
         button.frame = CGRect(x: x, y: y, width: widthHeight, height: widthHeight)
-        button.backgroundColor = UIColor.white
+        button.backgroundColor = UIColor.green
         //button.layer.cornerRadius = 0
         button.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
         button.gridrow = gridrow
@@ -48,7 +55,7 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     func makeCoverTile(x: Double, y: Double, widthHeight: Double, gridrow: Int, gridcolumn: Int) -> gridUIButton {
         let button = gridUIButton(type: .roundedRect)
         button.frame = CGRect(x: x, y: y, width: widthHeight, height: widthHeight)
-        button.backgroundColor = UIColor.white
+        button.backgroundColor = UIColor.red
         button.layer.borderColor = UIColor.darkGray.cgColor
         button.layer.borderWidth = 1.0
         //button.layer.cornerRadius = 0
@@ -59,10 +66,35 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
         return button
     }
     
+    func makeFlag(x: Double, y: Double, widthHeight: Double, gridrow: Int, gridcolumn: Int) ->gridUIButton {
+        let button = gridUIButton(type: .custom)
+        button.frame = CGRect(x: x, y: y, width: widthHeight, height: widthHeight)
+        //button.layer.cornerRadius = 0
+        button.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
+        button.gridrow = gridrow
+        button.gridcolumn = gridcolumn
+        button.setImage(flagImage, for: UIControlState.normal)
+        //addTarget does same thing as ctrl drag from storyboard to controller.
+        return button
+    }
+    
+    func makeUnFlag(x: Double, y: Double, widthHeight: Double, gridrow: Int, gridcolumn: Int) ->gridUIButton {
+        let button = gridUIButton(type: .custom)
+        button.frame = CGRect(x: x, y: y, width: widthHeight, height: widthHeight)
+        //button.layer.cornerRadius = 0
+        button.addTarget(self, action: #selector(didTapButton(_:)), for: .touchUpInside)
+        button.gridrow = gridrow
+        button.gridcolumn = gridcolumn
+        button.setImage(unflagImage, for: UIControlState.normal)
+        //addTarget does same thing as ctrl drag from storyboard to controller.
+        return button
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         startButton.alpha = 0
+        restartButton.alpha = 0
         numRowsTextField.delegate = self
         numColumnsTextField.delegate = self
         inputErrorMessageLabel.textColor = UIColor.orange
@@ -93,12 +125,18 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     
     func updateTiles(tiles: [[TileAttributes]]) {
         for view in self.view.subviews {//clears all subviews
+            if view.tag == 0 {
             view.removeFromSuperview()
+            }
         }
+        numMinesMessageLabel.text = "Mines: \(mineModel.numMinesUnflagged())"
+
+
         let frame = view.frame
         print(frame)
         widthOfATile = (Double(frame.size.width) - (1 + Double(numberOfColumns)) * gapBetweenTiles) / (Double(numberOfColumns) /*+ gapBetweenTiles*/)
         print("width of a tile \(widthOfATile)")
+
         var v = 0
         for i in 0..<tiles.count {
             let y = (widthOfATile + gapBetweenTiles) * Double(tiles[i][0].row) + 40.0
@@ -107,13 +145,21 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
                 v += 1
                 let x = (widthOfATile + gapBetweenTiles) * Double(tiles[i][j].column) + gapBetweenTiles
                 if tiles[i][j].tiles[1] == TileType.CoverTile {
-                    let button = makeButton(x: x-gapBetweenTiles/2, y: y-gapBetweenTiles/2, widthHeight: widthOfATile + gapBetweenTiles, gridrow: i, gridcolumn: j)
+                    let button = makeCoverTile(x: x-gapBetweenTiles/2, y: y-gapBetweenTiles/2, widthHeight: widthOfATile + gapBetweenTiles, gridrow: i, gridcolumn: j)
                     button.layer.shadowColor = shadowColor
                     button.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
                     button.layer.shadowRadius = 5
                     button.layer.shadowOpacity = 1.0
                     view.addSubview(button)
-
+                    
+                }else if tiles[i][j].tiles[1] == TileType.FlagTile {
+                    let button = makeFlag(x: x-gapBetweenTiles/2, y: y-gapBetweenTiles/2, widthHeight: widthOfATile + gapBetweenTiles, gridrow: i, gridcolumn: j)
+                    button.layer.shadowColor = shadowColor
+                    button.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
+                    button.layer.shadowRadius = 5
+                    button.layer.shadowOpacity = 1.0
+                    view.addSubview(button)
+                    
                 }else if tiles[i][j].tiles[0] == TileType.MineTile {
                     let mineView = MineView(frame: CGRect(x: x, y: y, width: widthOfATile, height: widthOfATile))
                     mineView.backgroundColor = UIColor.white
@@ -121,10 +167,9 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
                     mineView.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
                     mineView.layer.shadowRadius = 5
                     mineView.layer.shadowOpacity = 1.0
-                    
-
                     view.addSubview(mineView)
-                } else {
+                    
+                } else if tiles[i][j].tiles[0] == TileType.NumberTile{
                     let button = makeButton(x: x, y: y, widthHeight: widthOfATile, gridrow: i, gridcolumn: j)
                     button.layer.shadowColor = shadowColor
                     button.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
@@ -147,22 +192,96 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         }
+        /*
+        let x = (widthOfATile + gapBetweenTiles) * Double(2) + gapBetweenTiles
+        let y = (widthOfATile + gapBetweenTiles) * Double(tiles.count + 2) + gapBetweenTiles
+        
+        if FlagPlaceMode{
+            let button = makeFlag(x: x, y: y, widthHeight: widthOfATile * 2, gridrow: -1, gridcolumn: -1)
+            button.layer.shadowColor = shadowColor
+            button.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
+            button.layer.shadowRadius = 5
+            button.layer.shadowOpacity = 1.0
+            view.addSubview(button)
+        }else{
+            let button = makeUnFlag(x: x, y: y, widthHeight: widthOfATile * 2, gridrow: -1, gridcolumn: -1)
+            button.layer.shadowColor = shadowColor
+            button.layer.shadowOffset = CGSize(width: 5.0, height: 5.0)
+            button.layer.shadowRadius = 5
+            button.layer.shadowOpacity = 1.0
+            view.addSubview(button)
+        }*/
     }
     
     @IBAction func didTapStartButton(_ sender: UIButton) {
         print("Did tap the start button.")
         sender.isEnabled = false
         let tiles = mineModel.startGameWith(rows: numberOfRows, columns: numberOfColumns)
+        
         updateTiles(tiles: tiles)
         
+        flagButton.setImage(unflagImage, for: UIControlState.normal)
+        restartButton.alpha = 1.0
+        
+    }
+    
+    @IBAction func didTapRestartButton(_ sender: Any) {
+        numMinesMessageLabel.text = ""
+        
+    }
+
+    @IBAction func didTapFlagButton(_ sender: Any) {
+        if FlagPlaceMode{
+            flagButton.setImage(unflagImage, for: UIControlState.normal)
+        }else{
+            flagButton.setImage(flagImage, for: UIControlState.normal)
+        }
+        FlagPlaceMode = !FlagPlaceMode
     }
     
     func didTapButton(_ button: gridUIButton) {
         print("didTapButton with grid position: \(button.gridrow) \(button.gridcolumn)")
-        if mineModel.prodForMines(row: button.gridrow, column: button.gridcolumn){
-            print("you lost")
+        var lost = false
+        if !FlagPlaceMode{
+            if mineModel.prodForMines(row: button.gridrow, column: button.gridcolumn){
+                lost = true
+            }
+        }else{
+            if mineModel.placeFlag(row: button.gridrow, column: button.gridcolumn){
+                lost = true
+            }
         }
         updateTiles(tiles: mineModel.actionTiles())
+        if lost {
+        didLose()
+        }else if mineModel.didWin(){
+            didWin()
+        }
+    }
+    
+    func didWin(){
+        mineModel.revealMines()
+        updateTiles(tiles: mineModel.actionTiles())
+        for view in self.view.subviews {//clears all subviews
+            if view.tag == 0 {
+                view.isUserInteractionEnabled = false
+            }
+        }
+        numMinesMessageLabel.text = "You Won!"
+        print("You Won!")
+    }
+    
+    func didLose(){
+        
+        mineModel.revealMines()
+        updateTiles(tiles: mineModel.actionTiles())
+        for view in self.view.subviews {//clears all subviews
+            if view.tag == 0 {
+                view.isUserInteractionEnabled = false
+            }
+        }
+        numMinesMessageLabel.text = "Game Over"
+        print("Game Over")
     }
     
     override func didReceiveMemoryWarning() {

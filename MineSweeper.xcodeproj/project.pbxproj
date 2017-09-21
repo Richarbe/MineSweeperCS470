@@ -16,6 +16,8 @@
 		3EEB4E6C1E4FE4F30062B912 /* MineSweeperUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EEB4E6B1E4FE4F30062B912 /* MineSweeperUITests.swift */; };
 		3EEB4E7A1E511AD70062B912 /* MineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EEB4E791E511AD70062B912 /* MineView.swift */; };
 		3EEB4E7C1E517D0B0062B912 /* MineSweeperModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EEB4E7B1E517D0B0062B912 /* MineSweeperModel.swift */; };
+		3F0E526D1F7310C700A83000 /* flag.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F0E526C1F7310C700A83000 /* flag.png */; };
+		3F0E526F1F73162300A83000 /* unflag.png in Resources */ = {isa = PBXBuildFile; fileRef = 3F0E526E1F73162300A83000 /* unflag.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +53,8 @@
 		3EEB4E6D1E4FE4F30062B912 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3EEB4E791E511AD70062B912 /* MineView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MineView.swift; sourceTree = "<group>"; };
 		3EEB4E7B1E517D0B0062B912 /* MineSweeperModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MineSweeperModel.swift; sourceTree = "<group>"; };
+		3F0E526C1F7310C700A83000 /* flag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = flag.png; path = MineSweeper/Assets.xcassets/flag.png; sourceTree = "<group>"; };
+		3F0E526E1F73162300A83000 /* unflag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = unflag.png; path = Assets.xcassets/unflag.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +85,7 @@
 		3EEB4E3F1E4FE4F20062B912 = {
 			isa = PBXGroup;
 			children = (
+				3F0E526C1F7310C700A83000 /* flag.png */,
 				3EEB4E4A1E4FE4F20062B912 /* MineSweeper */,
 				3EEB4E5F1E4FE4F30062B912 /* MineSweeperTests */,
 				3EEB4E6A1E4FE4F30062B912 /* MineSweeperUITests */,
@@ -107,6 +112,7 @@
 				3EEB4E7B1E517D0B0062B912 /* MineSweeperModel.swift */,
 				3EEB4E4F1E4FE4F20062B912 /* Main.storyboard */,
 				3EEB4E521E4FE4F20062B912 /* Assets.xcassets */,
+				3F0E526E1F73162300A83000 /* unflag.png */,
 				3EEB4E541E4FE4F20062B912 /* LaunchScreen.storyboard */,
 				3EEB4E571E4FE4F20062B912 /* Info.plist */,
 			);
@@ -239,6 +245,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				3EEB4E561E4FE4F20062B912 /* LaunchScreen.storyboard in Resources */,
+				3F0E526F1F73162300A83000 /* unflag.png in Resources */,
+				3F0E526D1F7310C700A83000 /* flag.png in Resources */,
 				3EEB4E531E4FE4F20062B912 /* Assets.xcassets in Resources */,
 				3EEB4E511E4FE4F20062B912 /* Main.storyboard in Resources */,
 			);
@@ -513,6 +521,7 @@
 				3EEB4E721E4FE4F30062B912 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3EEB4E731E4FE4F30062B912 /* Build configuration list for PBXNativeTarget "MineSweeperTests" */ = {
 			isa = XCConfigurationList;
@@ -521,6 +530,7 @@
 				3EEB4E751E4FE4F30062B912 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3EEB4E761E4FE4F30062B912 /* Build configuration list for PBXNativeTarget "MineSweeperUITests" */ = {
 			isa = XCConfigurationList;
@@ -529,6 +539,7 @@
 				3EEB4E781E4FE4F30062B912 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
