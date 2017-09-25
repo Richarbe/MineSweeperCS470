@@ -23,10 +23,10 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     
     var numberOfRows = 0
     var numberOfColumns = 0
-    let maxNumberOfRows = 15
+    let maxNumberOfRows = 12
     let maxNumberOfColumns = 10
-    let minNumberOfRows = 1
-    let minNumberOfColumns = 1
+    let minNumberOfRows = 4
+    let minNumberOfColumns = 4
     let gapBetweenTiles = 2.0
     var mineModel = MineSweeperModel()
     var widthOfATile = 0.0
@@ -95,6 +95,7 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         startButton.alpha = 0
         restartButton.alpha = 0
+        flagButton.alpha = 0
         numRowsTextField.delegate = self
         numColumnsTextField.delegate = self
         inputErrorMessageLabel.textColor = UIColor.orange
@@ -222,12 +223,31 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
         
         flagButton.setImage(unflagImage, for: UIControlState.normal)
         restartButton.alpha = 1.0
+        flagButton.alpha = 1.0
+        startButton.alpha = 0
         
     }
     
     @IBAction func didTapRestartButton(_ sender: Any) {
         numMinesMessageLabel.text = ""
-        
+        for view in self.view.subviews {//clears all subviews
+            if view.tag == 0 {
+                view.removeFromSuperview()
+            }
+        }
+        UIView.animate(withDuration: 0.5, animations: {
+            self.restartButton.alpha = 0.0
+            self.flagButton.alpha = 0.0
+        }, completion: { _ in
+            UIView.animate(withDuration: 0.5, animations: {
+                self.numRowsTextField.alpha = 1.0
+                self.numColumnsTextField.alpha = 1.0
+            }, completion: { _ in })
+        })
+        numRowsTextField.isEnabled = true
+        numColumnsTextField.isEnabled = true
+        startButton.isEnabled = true
+    
     }
 
     @IBAction func didTapFlagButton(_ sender: Any) {

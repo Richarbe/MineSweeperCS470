@@ -37,6 +37,10 @@ class MineSweeperModel: NSObject {
     func startGameWith(rows: Int, columns: Int) -> ([[TileAttributes]]){
         self.rows = rows
         self.columns = columns
+        self.numMines = 0
+        self.numCovered = 0
+        self.numFlags = 0
+        self.tiles = [[TileAttributes]]()
         
         for row in 0..<rows {
             var tileRow = [TileAttributes]()// Create a one-dimensional array
@@ -87,7 +91,10 @@ class MineSweeperModel: NSObject {
                 return false
             }
         }else if tiles[row][column].tiles[1] == TileType.FlagTile {
-            tiles[row][column].tiles[1] = TileType.CoverTile
+            //tiles[row][column].tiles[1] = TileType.CoverTile
+            return false
+        }else if tiles[row][column].tiles[1] == TileType.NoTile {
+            return clearVicinity(row: row, column: column)
         }
         return false
     }
@@ -118,10 +125,10 @@ class MineSweeperModel: NSObject {
     }
     
     func revealMines(){
-        for row in tiles{
-            for cell in row{
-                if cell.tiles[0] == TileType.MineTile{
-                   // cell.tiles[1] = TileType.NoTile
+        for i in 1..<tiles.count{
+            for j in 1..<tiles[0].count{
+                if tiles[i][j].tiles[0] == TileType.MineTile{
+                    tiles[i][j].tiles[1] = TileType.NoTile
                     }
                 }
             }
@@ -148,10 +155,12 @@ class MineSweeperModel: NSObject {
                 for j in -1...1 {
                     if 0..<tiles.count ~= row+i,
                         0..<tiles[row].count ~= column+j,
-                        tiles[row+i][column+j].tiles[1] != TileType.FlagTile{
-                        tiles[row+i][column+j].tiles[1] = TileType.NoTile
+                        tiles[row+i][column+j].tiles[1] == TileType.CoverTile{
+                        
                         if tiles[row+i][column+j].tiles[0] == TileType.MineTile{
                             return true
+                        }else{
+                            self.prodForMines(row: row+i, column: column+j)
                         }
                     }
                 }
