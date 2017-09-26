@@ -82,8 +82,6 @@ class MineSweeperModel: NSObject {
     func prodForMines(row: Int, column: Int) -> Bool {
         //return true if mine explodes
         if tiles[row][column].tiles[1] == TileType.CoverTile {
-            tiles[row][column].tiles[1] = TileType.NoTile
-            numCovered -= 1
             if tiles[row][column].tiles[0] == TileType.MineTile{
                 return true
             }else{
@@ -100,10 +98,26 @@ class MineSweeperModel: NSObject {
     }
     
     func didWin() -> Bool {
+        print("testing win")
+        print(numMines)
+        print(numCovered)
         if(numMines == numCovered){
+            print("Yes Win")
             return true
         }
+        print("No Win")
         return false
+
+        //for row in tiles {
+        //    for cell in row{
+        //        if cell.tiles[1] != TileType.NoTile, cell.tiles[1] != TileType.MineTile{
+        //           print("No Win")
+        //            return false
+        //        }
+        //    }
+        //}
+        //print("Yes Win")
+        //return true
     }
     
     func numMinesUnflagged() -> Int{
@@ -125,8 +139,8 @@ class MineSweeperModel: NSObject {
     }
     
     func revealMines(){
-        for i in 1..<tiles.count{
-            for j in 1..<tiles[0].count{
+        for i in 0..<tiles.count{
+            for j in 0..<tiles[0].count{
                 if tiles[i][j].tiles[0] == TileType.MineTile{
                     tiles[i][j].tiles[1] = TileType.NoTile
                     }
@@ -157,10 +171,8 @@ class MineSweeperModel: NSObject {
                         0..<tiles[row].count ~= column+j,
                         tiles[row+i][column+j].tiles[1] == TileType.CoverTile{
                         
-                        if tiles[row+i][column+j].tiles[0] == TileType.MineTile{
+                        if self.prodForMines(row: row+i, column: column+j){
                             return true
-                        }else{
-                            self.prodForMines(row: row+i, column: column+j)
                         }
                     }
                 }

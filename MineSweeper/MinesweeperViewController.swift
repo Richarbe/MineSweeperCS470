@@ -280,7 +280,7 @@ class MinesweeperViewController: UIViewController, UITextFieldDelegate {
     }
     
     func didWin(){
-        mineModel.revealMines()
+        //mineModel.revealMines()
         updateTiles(tiles: mineModel.actionTiles())
         for view in self.view.subviews {//clears all subviews
             if view.tag == 0 {
